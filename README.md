@@ -123,7 +123,7 @@ Once you have the server running with SSE transport, you can connect to it using
   "mcpServers": {
     "mem0": {
       "transport": "sse",
-      "url": "http://localhost:8050/sse"
+      "url": "http://localhost:8000/sse"
     }
   }
 }

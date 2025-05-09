@@ -7,6 +7,7 @@ from mem0 import Memory
 import asyncio
 import json
 import os
+import logging
 
 from utils import get_mem0_client
 
@@ -64,9 +65,12 @@ async def save_memory(ctx: Context, text: str) -> str:
     try:
         mem0_client = ctx.request_context.lifespan_context.mem0_client
         messages = [{"role": "user", "content": text}]
+        logging.info(f"Attempting to save memory with user_id: {DEFAULT_USER_ID}")
         mem0_client.add(messages, user_id=DEFAULT_USER_ID)
+        logging.info(f"Successfully saved memory: {text[:100]}...")
         return f"Successfully saved memory: {text[:100]}..." if len(text) > 100 else f"Successfully saved memory: {text}"
     except Exception as e:
+        logging.error(f"Error saving memory: {e}", exc_info=True)
         return f"Error saving memory: {str(e)}"
 
 @mcp.tool()
@@ -125,4 +129,5 @@ async def main():
         await mcp.run_stdio_async()
 
 if __name__ == "__main__":
+    logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
     asyncio.run(main())

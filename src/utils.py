@@ -1,5 +1,6 @@
 from mem0 import Memory
 import os
+import logging
 
 # Custom instructions for memory processing
 # These aren't being used right now but Mem0 does support adding custom prompting
@@ -19,6 +20,11 @@ def get_mem0_client():
     llm_provider = os.getenv('LLM_PROVIDER')
     llm_api_key = os.getenv('LLM_API_KEY')
     llm_model = os.getenv('LLM_CHOICE')
+    # Configure basic logging if not already configured by main.py
+    # This is to ensure visibility if utils.py is run or tested standalone.
+    if not logging.getLogger().hasHandlers():
+        logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(module)s - %(message)s')
+    logging.info(f"LLM_CHOICE from env in utils.py: {llm_model}")
     embedding_model = os.getenv('EMBEDDING_MODEL_CHOICE')
     
     # Initialize config dictionary
@@ -31,7 +37,7 @@ def get_mem0_client():
             "config": {
                 "model": llm_model,
                 "temperature": 0.2,
-                "max_tokens": 2000,
+                "max_tokens": 2000
             }
         }
         
@@ -86,11 +92,11 @@ def get_mem0_client():
         if embedding_base_url:
             config["embedder"]["config"]["ollama_base_url"] = embedding_base_url
     
-    # Configure Supabase vector store
+    # Configure Qdrant vector store (local file-based)
     config["vector_store"] = {
-        "provider": "supabase",
+        "provider": "qdrant",
         "config": {
-            "connection_string": os.environ.get('DATABASE_URL', ''),
+            "path": "./.mem0_db",
             "collection_name": "mem0_memories",
             "embedding_model_dims": 1536 if llm_provider == "openai" else 768
         }
